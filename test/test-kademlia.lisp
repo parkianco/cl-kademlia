@@ -330,7 +330,7 @@
   "Test DHT statistics."
   (let ((dht (make-dht)))
     (dht-start dht)
-    (let ((stats (dht-stats dht)))
+    (let ((stats (dht-statistics dht)))
       (assert-true (getf stats :local-id))
       (assert-true (getf stats :running-p)))))
 

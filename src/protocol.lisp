@@ -713,7 +713,7 @@
       (setf (dht-record-republished-at record) (get-universal-time)))
     (length candidates)))
 
-(defun dht-stats (dht)
+(defun dht-statistics (dht)
   "Get DHT statistics.
 
    Arguments:

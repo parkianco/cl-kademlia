@@ -59,7 +59,7 @@ cl-kademlia provides a complete implementation of the Kademlia DHT with:
   (dht-get-providers *dht* content-key))
 
 ;; Get statistics
-(dht-stats *dht*)
+(dht-statistics *dht*)
 
 ;; Stop the DHT
 (dht-stop *dht*)
@@ -131,7 +131,7 @@ cl-kademlia provides a complete implementation of the Kademlia DHT with:
 (dht-republish dht)
 
 ;; Statistics
-(dht-stats dht)
+(dht-statistics dht)
 (dht-full-stats dht)
 ```
 
