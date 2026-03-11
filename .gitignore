@@ -1,0 +1,54 @@
+# Compiled Lisp files
+*.fasl
+*.fas
+*.lib
+*.o
+*.lx64fsl
+*.dx64fsl
+*.wx64fsl
+
+# SBCL compiled files
+*.abcl
+*.cfp
+*.dfsl
+*.p64fsl
+*.d64fsl
+*.lx32fsl
+*.dx32fsl
+
+# CCL files
+*.ccl
+
+# ECL files
+*.eclh
+
+# CLISP files
+*.mem
+
+# Cache directories
+.cache/
+~/.cache/common-lisp/
+
+# Editor backups
+*~
+\#*\#
+.#*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE files
+.idea/
+*.iml
+.vscode/
+*.swp
+*.swo
+
+# Build artifacts
+build/
+dist/
+
+# Test output
+test-results/
+coverage/
