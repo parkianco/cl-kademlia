@@ -7,7 +7,7 @@
 (defsystem "cl-kademlia"
   :description "Kademlia Distributed Hash Table implementation in pure Common Lisp"
   :version "1.0.0"
-  :author "CLPIC Contributors"
+  :author "Parkian Company LLC"
   :license "BSD-3-Clause"
   :depends-on ()
   :serial t
