@@ -1,7 +1,7 @@
 ;;;; cl-kademlia.asd - Kademlia DHT System Definition
 ;;;;
 ;;;; BSD 3-Clause License
-;;;; Copyright (c) 2024-2025, CLPIC Contributors
+;;;; Copyright (c) 2024-2025, Parkian Company LLC
 ;;;; See LICENSE for details.
 
 (defsystem "cl-kademlia"
