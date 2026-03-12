@@ -28,4 +28,6 @@
   :components ((:module "test"
                 :components ((:file "test-kademlia"))))
   :perform (test-op (op c)
-             (uiop:symbol-call :cl-kademlia.test :run-tests)))
+             (let ((result (uiop:symbol-call :cl-kademlia.test :run-tests)))
+               (unless result
+                 (error "Tests failed")))))
