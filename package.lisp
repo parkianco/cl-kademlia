@@ -279,6 +279,7 @@ This package implements a full Kademlia DHT with:
    ;; Maintenance
    #:dht-refresh                        ; Refresh routing table
    #:dht-republish                      ; Republish values
+   #:dht-running-p                       ; DHT running state predicate
    #:dht-stats                          ; Raw stats slot accessor
    #:dht-statistics                      ; Get computed DHT statistics
    #:dht-full-stats)                    ; Get comprehensive statistics
