@@ -3,7 +3,6 @@ cl-kademlia
 
 This software was extracted from CLPIC (Common Lisp P2P Intellectual Property Chain).
 
-Original source: https://github.com/clpic/clpic
 Module: src/network/dht/
 
 Copyright (c) 2024-2025 CLPIC Contributors
