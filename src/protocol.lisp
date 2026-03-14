@@ -1,3 +1,6 @@
+;; Copyright (c) 2024-2026 Parkian Company LLC. All rights reserved.
+;; SPDX-License-Identifier: BSD-3-Clause
+
 ;;;; protocol.lisp - DHT service, value store, provider records
 ;;;;
 ;;;; BSD 3-Clause License
