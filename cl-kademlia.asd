@@ -11,7 +11,7 @@
   :description "Kademlia Distributed Hash Table implementation in pure Common Lisp"
   :version "0.1.0"
   :author "Parkian Company LLC"
-  :license "BSD-3-Clause"
+  :license "Apache-2.0"
   :depends-on ()
   :serial t
   :components ((:file "package")
