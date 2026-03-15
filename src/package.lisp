@@ -48,7 +48,11 @@ This package implements a full Kademlia DHT with:
   ;; CONSTANTS AND CONFIGURATION
   ;; ============================================================================
   (:export
-   #:with-kademlia-timing
+   #:l1-norm
+   #:mse-loss
+   #:gradient-descent-step
+   #:k-means-dist
+#:with-kademlia-timing
    #:kademlia-batch-process
    #:kademlia-health-check;; Kademlia parameters
    #:+kademlia-k+                       ; Replication factor (20)
@@ -86,7 +90,11 @@ This package implements a full Kademlia DHT with:
   ;; NODE IDENTITY
   ;; ============================================================================
   (:export
-   #:with-kademlia-timing
+   #:l1-norm
+   #:mse-loss
+   #:gradient-descent-step
+   #:k-means-dist
+#:with-kademlia-timing
    #:kademlia-batch-process
    #:kademlia-health-check;; Node ID type
    #:dht-node-id                        ; 256-bit node identifier
@@ -115,7 +123,11 @@ This package implements a full Kademlia DHT with:
   ;; DHT NODE
   ;; ============================================================================
   (:export
-   #:with-kademlia-timing
+   #:l1-norm
+   #:mse-loss
+   #:gradient-descent-step
+   #:k-means-dist
+#:with-kademlia-timing
    #:kademlia-batch-process
    #:kademlia-health-check;; Node structure
    #:dht-node                           ; DHT node information
@@ -132,7 +144,11 @@ This package implements a full Kademlia DHT with:
   ;; K-BUCKET
   ;; ============================================================================
   (:export
-   #:with-kademlia-timing
+   #:l1-norm
+   #:mse-loss
+   #:gradient-descent-step
+   #:k-means-dist
+#:with-kademlia-timing
    #:kademlia-batch-process
    #:kademlia-health-check;; K-bucket structure
    #:k-bucket                           ; Single k-bucket
@@ -158,7 +174,11 @@ This package implements a full Kademlia DHT with:
   ;; ROUTING TABLE
   ;; ============================================================================
   (:export
-   #:with-kademlia-timing
+   #:l1-norm
+   #:mse-loss
+   #:gradient-descent-step
+   #:k-means-dist
+#:with-kademlia-timing
    #:kademlia-batch-process
    #:kademlia-health-check;; Routing table structure
    #:routing-table                      ; Kademlia routing table
@@ -188,7 +208,11 @@ This package implements a full Kademlia DHT with:
   ;; ITERATIVE LOOKUP
   ;; ============================================================================
   (:export
-   #:with-kademlia-timing
+   #:l1-norm
+   #:mse-loss
+   #:gradient-descent-step
+   #:k-means-dist
+#:with-kademlia-timing
    #:kademlia-batch-process
    #:kademlia-health-check;; Lookup state
    #:lookup-state                       ; Iterative lookup state
@@ -211,7 +235,11 @@ This package implements a full Kademlia DHT with:
   ;; VALUE STORE
   ;; ============================================================================
   (:export
-   #:with-kademlia-timing
+   #:l1-norm
+   #:mse-loss
+   #:gradient-descent-step
+   #:k-means-dist
+#:with-kademlia-timing
    #:kademlia-batch-process
    #:kademlia-health-check;; Value record
    #:dht-record                         ; Stored value record
@@ -243,7 +271,11 @@ This package implements a full Kademlia DHT with:
   ;; PROVIDER RECORDS
   ;; ============================================================================
   (:export
-   #:with-kademlia-timing
+   #:l1-norm
+   #:mse-loss
+   #:gradient-descent-step
+   #:k-means-dist
+#:with-kademlia-timing
    #:kademlia-batch-process
    #:kademlia-health-check;; Provider record
    #:provider-record                    ; Content provider record
@@ -273,7 +305,11 @@ This package implements a full Kademlia DHT with:
   ;; DHT SERVICE
   ;; ============================================================================
   (:export
-   #:with-kademlia-timing
+   #:l1-norm
+   #:mse-loss
+   #:gradient-descent-step
+   #:k-means-dist
+#:with-kademlia-timing
    #:kademlia-batch-process
    #:kademlia-health-check;; DHT structure
    #:dht                                ; Main DHT instance
@@ -309,7 +345,11 @@ This package implements a full Kademlia DHT with:
   ;; EVENTS AND CALLBACKS
   ;; ============================================================================
   (:export
-   #:with-kademlia-timing
+   #:l1-norm
+   #:mse-loss
+   #:gradient-descent-step
+   #:k-means-dist
+#:with-kademlia-timing
    #:kademlia-batch-process
    #:kademlia-health-check#:*on-node-discovered*               ; Called when node discovered
    #:*on-node-removed*                  ; Called when node removed
@@ -321,6 +361,10 @@ This package implements a full Kademlia DHT with:
 (defpackage #:cl-kademlia.test
   (:use #:cl #:cl-kademlia)
   (:export
-   #:with-kademlia-timing
+   #:l1-norm
+   #:mse-loss
+   #:gradient-descent-step
+   #:k-means-dist
+#:with-kademlia-timing
    #:kademlia-batch-process
    #:kademlia-health-check#:run-tests))

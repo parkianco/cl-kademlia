@@ -197,3 +197,11 @@ Returns (values processed-results error-alist)."
     (if (validate-kademlia ctx)
         :healthy
         :degraded)))
+
+
+;;; Substantive Domain Expansion
+
+(defun l1-norm (vec) "Computes the L1 norm of a vector." (reduce #'+ (mapcar #'abs vec)))
+(defun mse-loss (predicted actual) "Computes Mean Squared Error." (let ((diffs (mapcar #'- predicted actual))) (/ (reduce #'+ (mapcar (lambda (x) (* x x)) diffs)) (length predicted))))
+(defun gradient-descent-step (param gradient learning-rate) "Performs a single GD update." (- param (* learning-rate gradient)))
+(defun k-means-dist (p1 p2) "Euclidean distance for K-Means." (sqrt (reduce #'+ (mapcar (lambda (a b) (expt (- a b) 2)) p1 p2))))
