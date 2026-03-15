@@ -1,10 +1,10 @@
-;; Copyright (c) 2024-2026 Parkian Company LLC. All rights reserved.
-;; SPDX-License-Identifier: Apache-2.0
+;;;; Copyright (c) 2024-2026 Parkian Company LLC. All rights reserved.
+;;;; SPDX-License-Identifier: Apache-2.0
 
 ;;;; package.lisp - Package definitions for cl-kademlia
 ;;;;
-;;;; BSD 3-Clause License
-;;;; Copyright (c) 2024-2025, CLPIC Contributors
+;;;; Kademlia Distributed Hash Table Protocol Implementation
+;;;; Pure Common Lisp - no external dependencies
 
 (defpackage #:cl-kademlia
   (:use #:cl)
@@ -44,327 +44,196 @@ This package implements a full Kademlia DHT with:
    - STORE for publication
    - ADD_PROVIDER/GET_PROVIDERS for content addressing")
 
-  ;; ============================================================================
-  ;; CONSTANTS AND CONFIGURATION
-  ;; ============================================================================
+  ;; Configuration
   (:export
-   #:l1-norm
-   #:mse-loss
-   #:gradient-descent-step
-   #:k-means-dist
-#:with-kademlia-timing
-   #:kademlia-batch-process
-   #:kademlia-health-check;; Kademlia parameters
-   #:+kademlia-k+                       ; Replication factor (20)
-   #:+kademlia-alpha+                   ; Parallelism factor (3)
-   #:+kademlia-beta+                    ; Disjoint paths for queries (3)
-   #:+node-id-bits+                     ; Node ID size in bits (256)
-   #:+node-id-bytes+                    ; Node ID size in bytes (32)
-   #:+num-buckets+                      ; Number of k-buckets (256)
+   #:+kademlia-k+
+   #:+kademlia-alpha+
+   #:+kademlia-beta+
+   #:+node-id-bits+
+   #:+node-id-bytes+
+   #:+num-buckets+
+   #:+bucket-refresh-interval+
+   #:+republish-interval+
+   #:+record-expiration+
+   #:+provider-record-ttl+
+   #:+request-timeout+
+   #:+ping-interval+
+   #:+max-value-size+
+   #:+max-providers-per-key+
+   #:+replacement-cache-size+
+   #:+max-concurrent-queries+
+   #:*dht-config*
+   #:make-dht-config
+   #:dht-config
+   #:dht-config-k
+   #:dht-config-alpha
+   #:dht-config-bucket-refresh
+   #:dht-config-republish-interval
+   #:dht-config-record-ttl)
 
-   ;; Timing constants
-   #:+bucket-refresh-interval+          ; Bucket refresh interval (3600s)
-   #:+republish-interval+               ; Value republish interval (3600s)
-   #:+record-expiration+                ; Record expiration time (86400s)
-   #:+provider-record-ttl+              ; Provider record TTL (86400s)
-   #:+request-timeout+                  ; Request timeout (10s)
-   #:+ping-interval+                    ; Ping interval for liveness (300s)
-
-   ;; Limits
-   #:+max-value-size+                   ; Maximum stored value size (65536)
-   #:+max-providers-per-key+            ; Maximum providers per key (20)
-   #:+replacement-cache-size+           ; Replacement cache per bucket (8)
-   #:+max-concurrent-queries+           ; Maximum concurrent queries (16)
-
-   ;; Configuration
-   #:*dht-config*                       ; Global DHT configuration
-   #:make-dht-config                    ; Create configuration
-   #:dht-config                         ; Configuration structure
-   #:dht-config-k                       ; Replication parameter
-   #:dht-config-alpha                   ; Concurrency parameter
-   #:dht-config-bucket-refresh          ; Refresh interval
-   #:dht-config-republish-interval      ; Republish interval
-   #:dht-config-record-ttl)             ; Record TTL
-
-  ;; ============================================================================
-  ;; NODE IDENTITY
-  ;; ============================================================================
+  ;; Node Identity
   (:export
-   #:l1-norm
-   #:mse-loss
-   #:gradient-descent-step
-   #:k-means-dist
-#:with-kademlia-timing
-   #:kademlia-batch-process
-   #:kademlia-health-check;; Node ID type
-   #:dht-node-id                        ; 256-bit node identifier
-   #:dht-node-id-p                      ; Type predicate
-   #:make-dht-node-id                   ; Constructor from bytes
-   #:node-id-bytes                      ; Get raw 32 bytes
-   #:node-id-hex                        ; Get hex string representation
+   #:dht-node-id
+   #:dht-node-id-p
+   #:make-dht-node-id
+   #:node-id-bytes
+   #:node-id-hex
+   #:generate-node-id
+   #:node-id-from-key
+   #:node-id-from-public-key
+   #:xor-distance
+   #:log-distance
+   #:common-prefix-length
+   #:closer-to-p
+   #:bucket-index-for-distance
+   #:node-id=
+   #:node-id<)
 
-   ;; Node ID generation
-   #:generate-node-id                   ; Generate random node ID
-   #:node-id-from-key                   ; Derive from content key
-   #:node-id-from-public-key            ; Derive from public key
-
-   ;; Distance calculations
-   #:xor-distance                       ; XOR distance between two IDs
-   #:log-distance                       ; Log2 of XOR distance (bucket index)
-   #:common-prefix-length               ; Common prefix in bits
-   #:closer-to-p                        ; Check if A is closer than B to target
-   #:bucket-index-for-distance          ; Get bucket index for distance
-
-   ;; Comparison
-   #:node-id=                           ; Equality comparison
-   #:node-id<)                          ; Ordering for sorted collections
-
-  ;; ============================================================================
-  ;; DHT NODE
-  ;; ============================================================================
+  ;; DHT Node
   (:export
-   #:l1-norm
-   #:mse-loss
-   #:gradient-descent-step
-   #:k-means-dist
-#:with-kademlia-timing
-   #:kademlia-batch-process
-   #:kademlia-health-check;; Node structure
-   #:dht-node                           ; DHT node information
-   #:dht-node-p                         ; Type predicate
-   #:make-dht-node                      ; Constructor
-   #:dht-node-id                        ; Node's ID
-   #:dht-node-address                   ; Network address
-   #:dht-node-port                      ; Network port
-   #:dht-node-last-seen                 ; Last contact timestamp
-   #:dht-node-latency                   ; Round-trip latency
-   #:dht-node-failed-requests)          ; Consecutive failures
+   #:dht-node
+   #:dht-node-p
+   #:make-dht-node
+   #:dht-node-id
+   #:dht-node-address
+   #:dht-node-port
+   #:dht-node-last-seen
+   #:dht-node-latency
+   #:dht-node-failed-requests)
 
-  ;; ============================================================================
-  ;; K-BUCKET
-  ;; ============================================================================
+  ;; K-bucket
   (:export
-   #:l1-norm
-   #:mse-loss
-   #:gradient-descent-step
-   #:k-means-dist
-#:with-kademlia-timing
-   #:kademlia-batch-process
-   #:kademlia-health-check;; K-bucket structure
-   #:k-bucket                           ; Single k-bucket
-   #:k-bucket-p                         ; Type predicate
-   #:make-k-bucket                      ; Constructor
-   #:k-bucket-index                     ; Bucket index (0-255)
-   #:k-bucket-nodes                     ; Nodes in bucket
-   #:k-bucket-replacements              ; Replacement cache
-   #:k-bucket-capacity                  ; Maximum capacity (k)
-   #:k-bucket-last-refresh              ; Last refresh time
+   #:k-bucket
+   #:k-bucket-p
+   #:make-k-bucket
+   #:k-bucket-index
+   #:k-bucket-nodes
+   #:k-bucket-replacements
+   #:k-bucket-capacity
+   #:k-bucket-last-refresh
+   #:bucket-add
+   #:bucket-remove
+   #:bucket-get
+   #:bucket-contains-p
+   #:bucket-size
+   #:bucket-full-p
+   #:bucket-needs-refresh-p
+   #:bucket-stale-nodes)
 
-   ;; Bucket operations
-   #:bucket-add                         ; Add node to bucket
-   #:bucket-remove                      ; Remove node from bucket
-   #:bucket-get                         ; Get node by ID
-   #:bucket-contains-p                  ; Check if bucket contains node
-   #:bucket-size                        ; Current node count
-   #:bucket-full-p                      ; Is bucket at capacity?
-   #:bucket-needs-refresh-p             ; Does bucket need refresh?
-   #:bucket-stale-nodes)                ; Get stale nodes
-
-  ;; ============================================================================
-  ;; ROUTING TABLE
-  ;; ============================================================================
+  ;; Routing Table
   (:export
-   #:l1-norm
-   #:mse-loss
-   #:gradient-descent-step
-   #:k-means-dist
-#:with-kademlia-timing
-   #:kademlia-batch-process
-   #:kademlia-health-check;; Routing table structure
-   #:routing-table                      ; Kademlia routing table
-   #:routing-table-p                    ; Type predicate
-   #:make-routing-table                 ; Constructor
-   #:routing-table-local-id             ; Local node's ID
-   #:routing-table-buckets              ; All k-buckets
-   #:routing-table-size                 ; Total nodes in table
+   #:routing-table
+   #:routing-table-p
+   #:make-routing-table
+   #:routing-table-local-id
+   #:routing-table-buckets
+   #:routing-table-size
+   #:routing-table-add
+   #:routing-table-remove
+   #:routing-table-update
+   #:routing-table-get
+   #:routing-table-contains-p
+   #:routing-table-closest
+   #:routing-table-random-nodes
+   #:routing-table-all-nodes
+   #:routing-table-refresh
+   #:routing-table-prune)
 
-   ;; Core operations
-   #:routing-table-add                  ; Add node to table
-   #:routing-table-remove               ; Remove node from table
-   #:routing-table-update               ; Update node's info
-   #:routing-table-get                  ; Get node by ID
-   #:routing-table-contains-p           ; Check if contains node
-
-   ;; Lookups
-   #:routing-table-closest              ; Find k closest to target
-   #:routing-table-random-nodes         ; Get random nodes
-   #:routing-table-all-nodes            ; Get all nodes
-
-   ;; Maintenance
-   #:routing-table-refresh              ; Refresh stale buckets
-   #:routing-table-prune)               ; Remove dead nodes
-
-  ;; ============================================================================
-  ;; ITERATIVE LOOKUP
-  ;; ============================================================================
+  ;; Iterative Lookup
   (:export
-   #:l1-norm
-   #:mse-loss
-   #:gradient-descent-step
-   #:k-means-dist
-#:with-kademlia-timing
-   #:kademlia-batch-process
-   #:kademlia-health-check;; Lookup state
-   #:lookup-state                       ; Iterative lookup state
-   #:lookup-state-p                     ; Type predicate
-   #:make-lookup-state                  ; Constructor
-   #:lookup-state-target                ; Target ID
-   #:lookup-state-closest               ; K closest found
-   #:lookup-state-queried               ; Already queried nodes
-   #:lookup-state-pending               ; Pending queries
-   #:lookup-state-complete-p            ; Is lookup complete?
+   #:lookup-state
+   #:lookup-state-p
+   #:make-lookup-state
+   #:lookup-state-target
+   #:lookup-state-closest
+   #:lookup-state-queried
+   #:lookup-state-pending
+   #:lookup-state-complete-p
+   #:iterative-find-node
+   #:iterative-find-value
+   #:parallel-lookup
+   #:advance-lookup
+   #:finalize-lookup)
 
-   ;; Lookup operations
-   #:iterative-find-node                ; Find k closest nodes
-   #:iterative-find-value               ; Find value or k closest
-   #:parallel-lookup                    ; Lookup with alpha concurrency
-   #:advance-lookup                     ; Process response, advance
-   #:finalize-lookup)                   ; Complete lookup
-
-  ;; ============================================================================
-  ;; VALUE STORE
-  ;; ============================================================================
+  ;; Value Store
   (:export
-   #:l1-norm
-   #:mse-loss
-   #:gradient-descent-step
-   #:k-means-dist
-#:with-kademlia-timing
-   #:kademlia-batch-process
-   #:kademlia-health-check;; Value record
-   #:dht-record                         ; Stored value record
-   #:dht-record-p                       ; Type predicate
-   #:make-dht-record                    ; Constructor
-   #:dht-record-key                     ; Record key
-   #:dht-record-value                   ; Record value
-   #:dht-record-timestamp               ; Storage timestamp
-   #:dht-record-expiration              ; Expiration time
-   #:dht-record-publisher               ; Publisher node ID
+   #:dht-record
+   #:dht-record-p
+   #:make-dht-record
+   #:dht-record-key
+   #:dht-record-value
+   #:dht-record-timestamp
+   #:dht-record-expiration
+   #:dht-record-publisher
+   #:value-store
+   #:value-store-p
+   #:make-value-store
+   #:value-store-get
+   #:value-store-put
+   #:value-store-delete
+   #:value-store-contains-p
+   #:value-store-size
+   #:value-store-prune
+   #:schedule-republish
+   #:republish-values
+   #:get-republish-candidates)
 
-   ;; Value store
-   #:value-store                        ; Local value storage
-   #:value-store-p                      ; Type predicate
-   #:make-value-store                   ; Constructor
-   #:value-store-get                    ; Get value by key
-   #:value-store-put                    ; Store value
-   #:value-store-delete                 ; Delete value
-   #:value-store-contains-p             ; Check if key exists
-   #:value-store-size                   ; Number of stored values
-   #:value-store-prune                  ; Remove expired values
-
-   ;; Republishing
-   #:schedule-republish                 ; Schedule value republish
-   #:republish-values                   ; Republish all values
-   #:get-republish-candidates)          ; Get values needing republish
-
-  ;; ============================================================================
-  ;; PROVIDER RECORDS
-  ;; ============================================================================
+  ;; Provider Records
   (:export
-   #:l1-norm
-   #:mse-loss
-   #:gradient-descent-step
-   #:k-means-dist
-#:with-kademlia-timing
-   #:kademlia-batch-process
-   #:kademlia-health-check;; Provider record
-   #:provider-record                    ; Content provider record
-   #:provider-record-p                  ; Type predicate
-   #:make-provider-record               ; Constructor
-   #:provider-record-key                ; Content key
-   #:provider-record-provider-id        ; Provider node ID
-   #:provider-record-addresses          ; Provider addresses
-   #:provider-record-timestamp          ; Record timestamp
-   #:provider-record-expiration         ; Expiration time
+   #:provider-record
+   #:provider-record-p
+   #:make-provider-record
+   #:provider-record-key
+   #:provider-record-provider-id
+   #:provider-record-addresses
+   #:provider-record-timestamp
+   #:provider-record-expiration
+   #:provider-store
+   #:provider-store-p
+   #:make-provider-store
+   #:provider-store-add
+   #:provider-store-get
+   #:provider-store-remove
+   #:provider-store-prune
+   #:announce-provider
+   #:find-providers
+   #:refresh-provider-records)
 
-   ;; Provider store
-   #:provider-store                     ; Provider record storage
-   #:provider-store-p                   ; Type predicate
-   #:make-provider-store                ; Constructor
-   #:provider-store-add                 ; Add provider for key
-   #:provider-store-get                 ; Get providers for key
-   #:provider-store-remove              ; Remove provider
-   #:provider-store-prune               ; Remove expired providers
-
-   ;; Provider operations
-   #:announce-provider                  ; Announce as provider
-   #:find-providers                     ; Find providers for key
-   #:refresh-provider-records)          ; Refresh provider records
-
-  ;; ============================================================================
-  ;; DHT SERVICE
-  ;; ============================================================================
+  ;; DHT Service
   (:export
-   #:l1-norm
-   #:mse-loss
-   #:gradient-descent-step
-   #:k-means-dist
-#:with-kademlia-timing
-   #:kademlia-batch-process
-   #:kademlia-health-check;; DHT structure
-   #:dht                                ; Main DHT instance
-   #:dht-p                              ; Type predicate
-   #:make-dht                           ; Constructor
-   #:dht-local-id                       ; Local node ID
-   #:dht-routing-table                  ; Routing table
-   #:dht-value-store                    ; Value store
-   #:dht-provider-store                 ; Provider store
-   #:dht-config                         ; Configuration
+   #:dht
+   #:dht-p
+   #:make-dht
+   #:dht-local-id
+   #:dht-routing-table
+   #:dht-value-store
+   #:dht-provider-store
+   #:dht-config
+   #:dht-start
+   #:dht-stop
+   #:dht-bootstrap
+   #:dht-get
+   #:dht-put
+   #:dht-add-provider
+   #:dht-get-providers
+   #:dht-find-node
+   #:dht-refresh
+   #:dht-republish
+   #:dht-running-p
+   #:dht-stats
+   #:dht-statistics
+   #:dht-full-stats)
 
-   ;; Lifecycle
-   #:dht-start                          ; Start DHT service
-   #:dht-stop                           ; Stop DHT service
-   #:dht-bootstrap                      ; Bootstrap from seed nodes
-
-   ;; High-level operations
-   #:dht-get                            ; Get value by key
-   #:dht-put                            ; Store value
-   #:dht-add-provider                   ; Add provider record
-   #:dht-get-providers                  ; Get providers for key
-   #:dht-find-node                      ; Find node by ID
-
-   ;; Maintenance
-   #:dht-refresh                        ; Refresh routing table
-   #:dht-republish                      ; Republish values
-   #:dht-running-p                       ; DHT running state predicate
-   #:dht-stats                          ; Raw stats slot accessor
-   #:dht-statistics                      ; Get computed DHT statistics
-   #:dht-full-stats)                    ; Get comprehensive statistics
-
-  ;; ============================================================================
-  ;; EVENTS AND CALLBACKS
-  ;; ============================================================================
+  ;; Events and Callbacks
   (:export
-   #:l1-norm
-   #:mse-loss
-   #:gradient-descent-step
-   #:k-means-dist
-#:with-kademlia-timing
-   #:kademlia-batch-process
-   #:kademlia-health-check#:*on-node-discovered*               ; Called when node discovered
-   #:*on-node-removed*                  ; Called when node removed
-   #:*on-value-stored*                  ; Called when value stored
-   #:*on-value-retrieved*               ; Called when value retrieved
-   #:*on-provider-added*                ; Called when provider added
-   #:*on-lookup-complete*))             ; Called when lookup completes
+   #:*on-node-discovered*
+   #:*on-node-removed*
+   #:*on-value-stored*
+   #:*on-value-retrieved*
+   #:*on-provider-added*
+   #:*on-lookup-complete*))
 
 (defpackage #:cl-kademlia.test
   (:use #:cl #:cl-kademlia)
   (:export
-   #:l1-norm
-   #:mse-loss
-   #:gradient-descent-step
-   #:k-means-dist
-#:with-kademlia-timing
-   #:kademlia-batch-process
-   #:kademlia-health-check#:run-tests))
+   #:run-tests))

@@ -7,24 +7,29 @@
 ;;;; Copyright (c) 2024-2025, Parkian Company LLC
 ;;;; See LICENSE for details.
 
-(asdf:defsystem #:"cl-kademlia"
+(asdf:defsystem #:cl-kademlia
   :description "Kademlia Distributed Hash Table implementation in pure Common Lisp"
   :version "0.1.0"
   :author "Park Ian Co"
   :license "Apache-2.0"
   :depends-on ()
   :serial t
-  :components ((:file "package")
-               (:module "src"
+  :components ((:module "src"
                 :components ((:file "package")
                              (:file "conditions" :depends-on ("package"))
                              (:file "types" :depends-on ("package"))
-                             (:file "cl-kademlia" :depends-on ("package" "conditions" "types"))))))
-  :in-order-to ((asdf:test-op (test-op "cl-kademlia/test"))))
+                             (:file "util" :depends-on ("package"))
+                             (:file "node-id" :depends-on ("package" "conditions" "util"))
+                             (:file "routing" :depends-on ("package" "conditions" "types" "node-id"))
+                             (:file "protocol" :depends-on ("package" "conditions" "types" "node-id"))
+                             (:file "lookup" :depends-on ("package" "conditions" "types" "routing" "protocol"))
+                             (:file "cl-kademlia" :depends-on ("package" "conditions" "types" "util" "node-id" "routing" "protocol" "lookup"))
+                             (:file "cl-kademlia-dht" :depends-on ("package" "conditions" "types" "util" "node-id")))))
+  :in-order-to ((asdf:test-op (test-op #:cl-kademlia/test))))
 
-(asdf:defsystem #:"cl-kademlia/test"
+(asdf:defsystem #:cl-kademlia/test
   :description "Tests for cl-kademlia"
-  :depends-on ("cl-kademlia")
+  :depends-on (#:cl-kademlia)
   :serial t
   :components ((:module "test"
                 :components ((:file "test-kademlia"))))
