@@ -10,18 +10,16 @@
 (asdf:defsystem #:"cl-kademlia"
   :description "Kademlia Distributed Hash Table implementation in pure Common Lisp"
   :version "0.1.0"
-  :author "Parkian Company LLC"
+  :author "Park Ian Co"
   :license "Apache-2.0"
   :depends-on ()
   :serial t
   :components ((:file "package")
                (:module "src"
-                :serial t
-                :components ((:file "util")
-                             (:file "node-id")
-                             (:file "routing")
-                             (:file "lookup")
-                             (:file "protocol"))))
+                :components ((:file "package")
+                             (:file "conditions" :depends-on ("package"))
+                             (:file "types" :depends-on ("package"))
+                             (:file "cl-kademlia" :depends-on ("package" "conditions" "types"))))))
   :in-order-to ((asdf:test-op (test-op "cl-kademlia/test"))))
 
 (asdf:defsystem #:"cl-kademlia/test"
