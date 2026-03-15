@@ -48,7 +48,9 @@ This package implements a full Kademlia DHT with:
   ;; CONSTANTS AND CONFIGURATION
   ;; ============================================================================
   (:export
-   ;; Kademlia parameters
+   #:with-kademlia-timing
+   #:kademlia-batch-process
+   #:kademlia-health-check;; Kademlia parameters
    #:+kademlia-k+                       ; Replication factor (20)
    #:+kademlia-alpha+                   ; Parallelism factor (3)
    #:+kademlia-beta+                    ; Disjoint paths for queries (3)
@@ -84,7 +86,9 @@ This package implements a full Kademlia DHT with:
   ;; NODE IDENTITY
   ;; ============================================================================
   (:export
-   ;; Node ID type
+   #:with-kademlia-timing
+   #:kademlia-batch-process
+   #:kademlia-health-check;; Node ID type
    #:dht-node-id                        ; 256-bit node identifier
    #:dht-node-id-p                      ; Type predicate
    #:make-dht-node-id                   ; Constructor from bytes
@@ -111,7 +115,9 @@ This package implements a full Kademlia DHT with:
   ;; DHT NODE
   ;; ============================================================================
   (:export
-   ;; Node structure
+   #:with-kademlia-timing
+   #:kademlia-batch-process
+   #:kademlia-health-check;; Node structure
    #:dht-node                           ; DHT node information
    #:dht-node-p                         ; Type predicate
    #:make-dht-node                      ; Constructor
@@ -126,7 +132,9 @@ This package implements a full Kademlia DHT with:
   ;; K-BUCKET
   ;; ============================================================================
   (:export
-   ;; K-bucket structure
+   #:with-kademlia-timing
+   #:kademlia-batch-process
+   #:kademlia-health-check;; K-bucket structure
    #:k-bucket                           ; Single k-bucket
    #:k-bucket-p                         ; Type predicate
    #:make-k-bucket                      ; Constructor
@@ -150,7 +158,9 @@ This package implements a full Kademlia DHT with:
   ;; ROUTING TABLE
   ;; ============================================================================
   (:export
-   ;; Routing table structure
+   #:with-kademlia-timing
+   #:kademlia-batch-process
+   #:kademlia-health-check;; Routing table structure
    #:routing-table                      ; Kademlia routing table
    #:routing-table-p                    ; Type predicate
    #:make-routing-table                 ; Constructor
@@ -178,7 +188,9 @@ This package implements a full Kademlia DHT with:
   ;; ITERATIVE LOOKUP
   ;; ============================================================================
   (:export
-   ;; Lookup state
+   #:with-kademlia-timing
+   #:kademlia-batch-process
+   #:kademlia-health-check;; Lookup state
    #:lookup-state                       ; Iterative lookup state
    #:lookup-state-p                     ; Type predicate
    #:make-lookup-state                  ; Constructor
@@ -199,7 +211,9 @@ This package implements a full Kademlia DHT with:
   ;; VALUE STORE
   ;; ============================================================================
   (:export
-   ;; Value record
+   #:with-kademlia-timing
+   #:kademlia-batch-process
+   #:kademlia-health-check;; Value record
    #:dht-record                         ; Stored value record
    #:dht-record-p                       ; Type predicate
    #:make-dht-record                    ; Constructor
@@ -229,7 +243,9 @@ This package implements a full Kademlia DHT with:
   ;; PROVIDER RECORDS
   ;; ============================================================================
   (:export
-   ;; Provider record
+   #:with-kademlia-timing
+   #:kademlia-batch-process
+   #:kademlia-health-check;; Provider record
    #:provider-record                    ; Content provider record
    #:provider-record-p                  ; Type predicate
    #:make-provider-record               ; Constructor
@@ -257,7 +273,9 @@ This package implements a full Kademlia DHT with:
   ;; DHT SERVICE
   ;; ============================================================================
   (:export
-   ;; DHT structure
+   #:with-kademlia-timing
+   #:kademlia-batch-process
+   #:kademlia-health-check;; DHT structure
    #:dht                                ; Main DHT instance
    #:dht-p                              ; Type predicate
    #:make-dht                           ; Constructor
@@ -291,7 +309,9 @@ This package implements a full Kademlia DHT with:
   ;; EVENTS AND CALLBACKS
   ;; ============================================================================
   (:export
-   #:*on-node-discovered*               ; Called when node discovered
+   #:with-kademlia-timing
+   #:kademlia-batch-process
+   #:kademlia-health-check#:*on-node-discovered*               ; Called when node discovered
    #:*on-node-removed*                  ; Called when node removed
    #:*on-value-stored*                  ; Called when value stored
    #:*on-value-retrieved*               ; Called when value retrieved
@@ -300,4 +320,7 @@ This package implements a full Kademlia DHT with:
 
 (defpackage #:cl-kademlia.test
   (:use #:cl #:cl-kademlia)
-  (:export #:run-tests))
+  (:export
+   #:with-kademlia-timing
+   #:kademlia-batch-process
+   #:kademlia-health-check#:run-tests))
